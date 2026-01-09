@@ -1,0 +1,42 @@
+services:
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: smritim-mysql
+  #   restart: always
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: admin123
+  #     MYSQL_DATABASE: adr_chatbot
+  #     MYSQL_USER: aju
+  #     MYSQL_PASSWORD: admin123
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - smritim_net
+
+  backend:
+    build: .
+    container_name: smritim-backend
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - smritim_net
+
+volumes:
+  mysql_data:
+
+networks:
+  smritim_net:
+    driver: bridge

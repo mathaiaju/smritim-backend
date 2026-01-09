@@ -92,10 +92,10 @@ app.get('/', (req,res)=> res.json({ok:true, msg:'MediRaksha backend'}));
 
 (async () => {
   try {
-    await db.sequelize.sync({ force: false, alter: false });
+    //await db.sequelize.sync({ force: false, alter: false });
 
-    console.log('DB synced');
-    reminderJob.startReminderCron(); // start cron jobs
+    //console.log('DB synced');
+    //reminderJob.startReminderCron(); // start cron jobs
     app.listen(config.server.port, () => {
       console.log(`Server running on port ${config.server.port}`);
     });

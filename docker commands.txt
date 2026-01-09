@@ -1,0 +1,35 @@
+
+# Database Setup as container
+
+docker pull mysql:8.0
+
+docker run --name smritim-mysql -e MYSQL_ROOT_PASSWORD=admin123 -p 3306:3306 -d mysql:8.0
+
+docker exec -it smritim-mysql /bin/bash
+
+mysql -uroot -p
+
+CREATE DATABASE adr_chatbot;
+
+CREATE USER 'aju'@'%' IDENTIFIED BY 'admin123';
+
+GRANT ALL PRIVILEGES ON adr_chatbot.* TO 'aju'@'%';
+
+FLUSH PRIVILEGES;
+
+docker network create smritim-net
+
+docker network connect smritim-net smritim-mysql
+
+
+# Start SMRITI-M Backend
+
+
+docker build -t smritim-backend .
+
+docker run --name smritim-backend \
+  --network smritim-net \
+  -p 3000:3000 \
+  smritim-backend
+
+
