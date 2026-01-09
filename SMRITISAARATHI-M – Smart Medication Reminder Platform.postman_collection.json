@@ -1,0 +1,979 @@
+{
+	"info": {
+		"_postman_id": "22efd897-5077-4afb-9966-a01599816ab5",
+		"name": "SMRITISAARATHI-M – Smart Medication Reminder Platform",
+		"description": "Multi-tenant mental health medication safety & adherence platform",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "471709"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.environment.set(\"adminToken\", res.token);",
+									"pm.environment.set(\"hospitalId\", res.hospital_id);",
+									"",
+									"console.log(\"Admin token saved\");",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Patient",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.environment.set(\"patientToken\", res.token);",
+									"pm.environment.set(\"hospitalId\", res.hospital_id);",
+									"",
+									"console.log(\"Patient token saved\");",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"sreelakshmi.patient\",\n  \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Clinician",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.environment.set(\"clinicianToken\", res.token);",
+									"pm.environment.set(\"hospitalId\", res.hospital_id);",
+									"",
+									"console.log(\"Clinician token saved\");",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"dr.arjun\",\n  \"password\": \"password\"\n}\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Caregiver",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.environment.set(\"caregiverToken\", res.token);",
+									"pm.environment.set(\"hospitalId\", res.hospital_id);",
+									"",
+									"console.log(\"Caregiver token saved\");",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"caregiver1\",\n  \"password\": \"password\"\n}\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Hospital Admin",
+			"item": [
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Clinicians",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/clinicians",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"clinicians"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View Alerts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/alerts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"alerts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Clinician",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"full_name\": \"Dr Arjun Nair\",\n  \"email\": \"arjun@hospital.com\",\n  \"phone\": \"9999888876\",\n  \"speciality\": \"psychiatry\",\n  \"username\": \"dr.arjun\",\n  \"password\": \"password\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/onboard/clinician",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"onboard",
+								"clinician"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"full_name\": \"Sreelakshmi Menon\",\n  \"phone\": \"9947440136\",\n  \"locale\": \"ml\",\n  \"emergency_contact\": \"9777700099\",\n  \"username\": \"sreelakshmi.patient\",\n  \"password\": \"password\"\n}\n\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/onboard/patient",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"onboard",
+								"patient"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Caregiver",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"full_name\": \"RajaLakshmi\",\n  \"phone\": \"9947440135\",\n  \"relation\":\"mother\",\n  \"role\": \"caregiver\",\n  \"username\": \"rajalakshmi.caregiver\",\n  \"password\": \"password\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/onboard/caregiver",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"onboard",
+								"caregiver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin777\",\n  \"password\": \"password\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/onboard/admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"onboard",
+								"admin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patient Clinician Link",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": 26,\n  \"clinician_id\": 21\n}\n    ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/patient-clinician",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"patient-clinician"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patient Caregiver Link",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"patient_id\": 26,\n  \"caregiver_id\": 21\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/patient-caregiver",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"patient-caregiver"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Hospitals",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "List Hospitals",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/hospitals?Authorization=Bearer {{adminToken}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"hospitals"
+							],
+							"query": [
+								{
+									"key": "Authorization",
+									"value": "Bearer {{adminToken}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Patient",
+			"item": [
+				{
+					"name": "View Medications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patientToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/meds",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"meds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Daily Log",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{patientToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"medication_schedule_id\": 62,\n  \"log_date\": \"2025-12-21\",\n  \"status\": \"taken\",\n  \"quick_se\": [\"high fever\", \"muscle stifness\", \"confusion\"],\n  \"mood_score\": 1,\n  \"sleep_hours\": 2\n}\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/daily-logs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"daily-logs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Clinician",
+			"item": [
+				{
+					"name": "Get My Patients",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/clinicians/me/patients",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"clinicians",
+								"me",
+								"patients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View Alerts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/alerts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"alerts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Weekly Summary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/clinicians/patient/{{patientId}}/weekly-summary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"clinicians",
+								"patient",
+								"{{patientId}}",
+								"weekly-summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download Patient PDF",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/clinicians/patient/{{patientId}}/export-pdf",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"clinicians",
+								"patient",
+								"{{patientId}}",
+								"export-pdf"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Caregiver",
+			"item": [
+				{
+					"name": "View Alerts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{caregiverToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/alerts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"alerts"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PvPI",
+			"item": [
+				{
+					"name": "List PvPI Cases",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pvpi",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pvpi"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Submit PvPI Case",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"case_id\": 6\n}\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pvpi/submit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pvpi",
+								"submit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create PVPI case",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Medications",
+			"item": [
+				{
+					"name": "Create Medication (Prescription)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": {{patientId}},\n  \"drug_name_generic\": \"Clozapine\",\n  \"drug_name_brand\": \"Clozatal\",\n  \"indication\": \"Schizophrenia\",\n  \"start_date\": \"2025-12-15\"\n}\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/meds",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"meds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Medication by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/meds/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"meds",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Medication",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"indication\": \"Bipolar Disorder\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/meds/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"meds",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Stop Medication",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/meds/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"meds",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Medication Schedule",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"medication_id\": 20,\n  \"dose\": \"50 mg\",\n  \"time_of_day\": \"night\",\n  \"scheduled_time\": \"21:00\"\n}\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/medication-schedules",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medication-schedules"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Medication Schedules",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/medication-schedules?medication_id=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medication-schedules"
+							],
+							"query": [
+								{
+									"key": "medication_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Medication Schedule",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dose\": \"10 mg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/medication-schedules/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medication-schedules",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Medication Schedule",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{clinicianToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/medication-schedules/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medication-schedules",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

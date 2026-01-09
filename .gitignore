@@ -1,0 +1,39 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build / temp
+dist/
+build/
+.tmp/
+.cache/
+
+# Coverage
+coverage/
+
+# IDE
+.vscode/
+.idea/
+
+# Runtime
+pids
+*.pid
+*.seed
+
+# Sequelize
+*.sqlite
