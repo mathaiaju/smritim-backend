@@ -1,30 +1,71 @@
-# MediRaksha Backend (Demo)
+# 🏥 Smritim Backend
 
-This is a demo Node.js + Express + Sequelize backend for the MediRaksha Malayalam ADR chatbot project.
+Smritim Backend is a Node.js + Express backend powering the Smritim healthcare platform.  
+It supports medication adherence tracking, adverse drug reaction (ADR) monitoring, PvPI case workflows, clinician dashboards, and a patient-facing chatbot with strong safety and audit controls.
 
-## Quickstart (local)
+---
 
-1. Install dependencies
-   ```bash
-   npm install
-   ```
-2. Copy `.env.example` to `.env` and edit DB credentials.
-3. Create MySQL database `mediraksha`.
-4. Seed sample data:
-   ```bash
-   npm run seed
-   ```
-5. Run the app:
-   ```bash
-   npm run dev
-   ```
+## ✨ Features
 
-API endpoints (examples):
-- `POST /api/users` - create user
-- `POST /api/medications` - add medication
-- `POST /api/daily-logs` - create daily log (triggers rule eval)
-- `GET /api/alerts` - list alerts
-- `GET /api/clinicians/patient/:userId/weekly-summary` - weekly summary
-- `GET /api/clinicians/patient/:userId/export-pdf` - export PDF one-pager
+- Patient medication adherence tracking
+- Rule-based ADR detection
+- Patient chatbot (English + Malayalam)
+- Clinician & Admin alert management
+- PvPI case creation and submission
+- Daily symptom logging
+- Role-based access control
+- Comprehensive audit logging
+- Healthcare-compliant design
 
-This is a demo scaffold. Replace notification stubs with real integrations before production.
+---
+
+## 🧱 Tech Stack
+
+- **Runtime:** Node.js
+- **Framework:** Express.js
+- **Database:** MySQL
+- **ORM:** Sequelize
+- **Authentication:** JWT
+- **Language:** JavaScript (ES6)
+
+---
+
+## 📁 Project Structure
+
+```text
+smritim-backend/
+├── models/
+│   ├── User.js
+│   ├── Medication.js
+│   ├── MedicationSchedule.js
+│   ├── Alert.js
+│   ├── Rule.js
+│   ├── PvpiCase.js
+│   ├── DailyLog.js
+│   ├── AuditLog.js
+│   └── index.js
+│
+├── routes/
+│   ├── auth.js
+│   ├── alerts.js
+│   ├── dailyLogs.js
+│   ├── drugs.js
+│   ├── pvpi.js
+│   └── patientChatbot.js
+│
+├── middleware/
+│   ├── auth.js
+│   └── errorHandler.js
+│
+├── services/
+│   ├── ruleEngine.js
+│   └── auditLogger.js
+│
+├── config/
+│   └── database.js
+│
+├── .env.example
+├── .gitignore
+├── package.json
+├── server.js
+└── README.md
