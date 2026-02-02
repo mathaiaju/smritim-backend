@@ -24,6 +24,7 @@ docker network connect smritim-net smritim-mysql
 
 # Start SMRITI-M Backend
 
+node seed/finalseedTestData.js
 
 docker build -t smritim-backend .
 

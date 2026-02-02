@@ -1,22 +1,29 @@
 const db = require("../models");
 
-
 /* =========================
    Helpers
 ========================= */
 function normalize(text) {
-  return text.toLowerCase().trim();
+  if (!text) return "";
+
+  return text
+    .toLowerCase()
+    .replace(/[+/]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-function tokenizeRuleSymptoms(symptomStr) {
+function tokenize(symptomStr) {
+  if (!symptomStr) return [];
+
+  // Handles: " +/ ", "+ /", "/", "+"
   return symptomStr
-    .toLowerCase()
-    .split("+/")
-    .map(s => s.trim())
+    .split(/\s*\+\/\s*|\s*\+\s*|\s*\/\s*/)
+    .map(s => normalize(s))
     .filter(Boolean);
 }
 
-/* Severity-based thresholds (for MULTI-symptom rules) */
+/* Severity-based thresholds */
 const SEVERITY_MATCH_THRESHOLD = {
   critical: 2,
   high: 2,
@@ -27,13 +34,18 @@ const SEVERITY_MATCH_THRESHOLD = {
 /* =====================================================
    Evaluate safety rules for a daily log
 ===================================================== */
+
 async function evaluateForLog({
   user_id,
   medication_id,
   medication_schedule_id,
   quick_se = [],
-  date
+  date,
+  language
 }) {
+  console.log("Rule Evaluation Started");
+  console.log("Quick SE:", quick_se);
+
   if (!Array.isArray(quick_se) || quick_se.length === 0) {
     return { alert: false };
   }
@@ -41,22 +53,32 @@ async function evaluateForLog({
   /* =========================
      Normalize patient symptoms
   ========================= */
-  const patientSymptoms = quick_se.map(normalize);
+  const patientSymptoms = quick_se
+    .map(s => (typeof s === "string" ? s.replace(/^\//, "").trim() : ""))
+    .map(normalize)
+    .filter(Boolean);
+
+  console.log("Normalized patient symptoms:", patientSymptoms);
 
   /* =========================
      Load medication
   ========================= */
-  let medication = null;
-  if (medication_id) {
-    medication = await db.Medication.findByPk(medication_id);
-    if (!medication) return { alert: false };
-  }
+  const medication = await db.Medication.findByPk(medication_id);
+  if (!medication) return { alert: false };
+
+  const medName = normalize(medication.drug_name_generic);
 
   /* =========================
-     Load rules (severity priority)
+     Load relevant rules only
   ========================= */
   const rules = await db.Rule.findAll({
-    where: { active: true },
+    where: {
+      active: true,
+      [db.Sequelize.Op.or]: [
+        { drug_name: medication.drug_name_generic },
+        { drug_name: "General" }
+      ]
+    },
     order: [
       [
         db.Sequelize.literal(
@@ -71,75 +93,82 @@ async function evaluateForLog({
      Evaluate rules
   ========================= */
   for (const rule of rules) {
-    /* -------- Drug match -------- */
-    const drugMatches =
-      !rule.drug_name ||
-      (medication &&
-        normalize(rule.drug_name) ===
-          normalize(medication.drug_name_generic));
+    console.log("Language:", language);
+    console
+    const primaryField =
+      language === "ml" ? rule.symptom_ml : rule.symptom;
 
-    if (!drugMatches) continue;
+    const fallbackField =
+      language === "ml" ? rule.symptom : null;
 
-    /* -------- Symptom matching -------- */
-    const ruleSymptoms = tokenizeRuleSymptoms(rule.symptom);
+    const ruleTokensPrimary = tokenize(primaryField);
+    const ruleTokensFallback = fallbackField
+      ? tokenize(fallbackField)
+      : [];
 
-    const matchedSymptoms = ruleSymptoms.filter(ruleToken =>
-      patientSymptoms.some(ps => ps.includes(ruleToken))
+    console.log("Rule:", rule.rule_name);
+    console.log("Rule tokens:", ruleTokensPrimary);
+
+    let matched = ruleTokensPrimary.filter(rt =>
+      patientSymptoms.some(ps => ps.includes(rt))
     );
 
-    if (matchedSymptoms.length === 0) continue;
-
-    /* -------- Threshold logic -------- */
-    let threshold;
-
-    // 🔥 SINGLE-SYMPTOM RULE → always trigger on 1
-    if (ruleSymptoms.length === 1) {
-      threshold = 1;
-    } else {
-      threshold =
-        SEVERITY_MATCH_THRESHOLD[rule.severity] ?? 1;
+    // Malayalam → English fallback
+    if (
+      matched.length === 0 &&
+      language === "ml" &&
+      ruleTokensFallback.length > 0
+    ) {
+      matched = ruleTokensFallback.filter(rt =>
+        patientSymptoms.some(ps => ps.includes(rt))
+      );
     }
 
-    if (matchedSymptoms.length < threshold) continue;
+    if (matched.length === 0) {
+      continue;
+    }
+
+    const totalRuleSymptoms =
+      ruleTokensPrimary.length || ruleTokensFallback.length;
+
+    const threshold =
+      totalRuleSymptoms === 1
+        ? 1
+        : SEVERITY_MATCH_THRESHOLD[rule.severity] ?? 1;
+
+    if (matched.length < threshold) {
+      continue;
+    }
 
     /* =========================
        RULE MATCH FOUND
     ========================= */
-    console.log(
-    JSON.stringify({
-        type: "RULE_EVALUATION",
-        user_id,
-        medication_id,
-        rule_id: rule?.id,
-        severity: rule?.severity,
-        triggered: !!rule,
-        timestamp: new Date().toISOString()
-      })
-    );
-
- 
+    console.log("✅ RULE MATCHED:", rule.rule_name);
+    console.log("Matched symptoms:", matched);
 
     return {
       alert: true,
       rule: {
         id: rule.id,
+        rule_name: rule.rule_name,
         severity: rule.severity,
-        action_card: rule.action_card,
         drug_name: rule.drug_name,
-        symptom: rule.symptom
+        symptom:
+          language === "ml"
+            ? rule.symptom_ml || rule.symptom
+            : rule.symptom,
+        action_card:
+          language === "ml"
+            ? rule.action_card_ml || rule.action_card
+            : rule.action_card
       },
-      matched_symptoms: matchedSymptoms,
-      match_count: matchedSymptoms.length,
+      matched_symptoms: matched,
+      match_count: matched.length,
       required_count: threshold
     };
-
- 
-
   }
 
   return { alert: false };
 }
 
-module.exports = {
-  evaluateForLog
-};
+module.exports = { evaluateForLog };

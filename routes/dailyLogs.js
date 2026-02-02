@@ -1,7 +1,7 @@
   const express = require('express');
   const router = express.Router();
   const db = require('../models');
-  const ruleEvaluator = require('../services/ruleEvaluator');
+  const ruleEvaluator = require('../services/ruleEvaluator.js');
   const notifications = require('../services/notifications');
   const auth = require('../middleware/auth');
   const audit = require("../services/auditLogger");
@@ -17,17 +17,19 @@
     auth(['patient']),
     async (req, res) => {
       try {
-        const {
+       const {
           medication_schedule_id,
-          medication_id, // legacy
+          medication_id,
           log_date,
           status,
           minutes_late = 0,
           reason,
           quick_se,
           mood_score,
-          sleep_hours
+          sleep_hours,
+          language = "en"   // 🔑 ADD THIS
         } = req.body;
+
 
         const user_id = req.user.linked_id;
         const hospital_id = req.user.hospital_id;
@@ -153,6 +155,8 @@
         console.log("Log Date:", log_date);
         console.log("Log Status:", status);
 
+        console.log("🌐 Rule engine language:", language);
+
 
 
         const evaluation = await ruleEvaluator.evaluateForLog({
@@ -160,7 +164,8 @@
           medication_id: resolvedMedicationId,
           medication_schedule_id: scheduleId,
           quick_se,
-          date: log_date
+          date: log_date,
+          language: language
         });
 
          console.log("evaluation", evaluation);

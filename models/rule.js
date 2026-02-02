@@ -10,7 +10,6 @@ module.exports = (sequelize) =>
         primaryKey: true
       },
 
-      
       /* =========================
          RULE METADATA
       ========================= */
@@ -25,10 +24,19 @@ module.exports = (sequelize) =>
         allowNull: true
       },
 
-      // Supports multi-symptom logic: "fever +/ tremor"
+      /* =========================
+         SYMPTOMS (BILINGUAL)
+      ========================= */
+      // English symptom definition
       symptom: {
         type: DataTypes.STRING(255),
         allowNull: false
+      },
+
+      // Malayalam symptom definition
+      symptom_ml: {
+        type: DataTypes.STRING(255),
+        allowNull: true
       },
 
       /* =========================
@@ -39,11 +47,24 @@ module.exports = (sequelize) =>
         allowNull: false
       },
 
+      /* =========================
+         ACTION CARDS (BILINGUAL)
+      ========================= */
+      // English action card
       action_card: {
         type: DataTypes.TEXT,
         allowNull: false
       },
 
+      // Malayalam action card
+      action_card_ml: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+
+      /* =========================
+         FLAGS
+      ========================= */
       active: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
@@ -65,7 +86,6 @@ module.exports = (sequelize) =>
           name: "idx_rules_drug",
           fields: ["drug_name"]
         }
-       
       ]
     }
   );

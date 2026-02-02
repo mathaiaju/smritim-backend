@@ -118,13 +118,15 @@ router.post(
 
       req.url = "/";
       req.method = "POST";
-      req.body = {
-        medication_schedule_id,
-        medication_id,
-        log_date,
-        status: "taken",          // IMPORTANT: valid ENUM
-        quick_se: symptoms
-      };
+     req.body = {
+      medication_schedule_id,
+      medication_id,
+      log_date,
+      status: "taken",
+      quick_se: symptoms,
+      language: req.body.lang === "ml" ? "ml" : "en"
+     };
+
 
       const dailyLogsRouter = require("./dailyLogs");
       return dailyLogsRouter.handle(req, res);

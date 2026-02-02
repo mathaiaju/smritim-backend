@@ -55,6 +55,26 @@ const caregivers = {
   3: ['Kavya Singh', 'Rani Iyer', 'Naveen Iyer', 'Deepa George', 'Meera Singh', 'Geetha Binu', 'Mahesh Babu', 'Radha Kumar', 'Rohan Nair', 'Vijay Mehta']
 };
 
+function randomDateOfBirth(minAge = 18, maxAge = 75) {
+  const today = new Date();
+
+  const minYear = today.getFullYear() - maxAge;
+  const maxYear = today.getFullYear() - minAge;
+
+  const year = Math.floor(Math.random() * (maxYear - minYear + 1)) + minYear;
+  const month = Math.floor(Math.random() * 12);
+  const day = Math.floor(Math.random() * 28) + 1; // safe for all months
+
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function randomWeightKg(min = 45, max = 95) {
+  const weight = Math.random() * (max - min) + min;
+  return Number(weight.toFixed(1));
+}
+
+
+
 (async () => {
   const conn = await mysql.createConnection(dbConfig);
   console.log("✅ Connected to MySQL");
@@ -69,7 +89,7 @@ const caregivers = {
     "user_caregiver_link", "caregivers", "consent", "patient_clinician_link",
     "clinician_users", "pvpi_review_logs", "weekly_rollup", "pvpi_cases",
     "alerts", "daily_logs", "medication_schedules", "medications",
-    "meddra_terms", "users", "rules", "auth_users", "hospitals", "audit_logs"
+    "meddra_terms", "users", "rules", "auth_users", "hospitals", "audit_logs","sleep_logs","mood_logs"
   ];
 
   for (const t of tables) {
@@ -103,6 +123,8 @@ const caregivers = {
       full_name VARCHAR(100),
       locale ENUM('ml','en') DEFAULT 'ml',
       emergency_contact VARCHAR(20),
+      date_of_birth DATE NULL,
+      weight_kg DECIMAL(5,2) NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       FOREIGN KEY (hospital_id) REFERENCES hospitals(id)
@@ -202,7 +224,7 @@ const caregivers = {
       medication_id BIGINT,
       medication_schedule_id BIGINT,
       log_date DATE,
-      status ENUM('taken','late','skipped'),
+      status ENUM('taken','late','skipped','missed'),
       minutes_late INT DEFAULT 0,
       reason ENUM('forgot','side_effect','ran_out','cost','other','no_response'),
       quick_se JSON,
@@ -218,13 +240,20 @@ const caregivers = {
     /* Temporary VARCHAR for severity */
     CREATE TABLE rules (
       id BIGINT PRIMARY KEY AUTO_INCREMENT,
-      rule_name VARCHAR(150),
-      drug_name VARCHAR(100),
-      symptom VARCHAR(255),
-      severity VARCHAR(20),
-      action_card TEXT,
-      active BOOLEAN DEFAULT TRUE
+
+      rule_name VARCHAR(150) NOT NULL,
+      drug_name VARCHAR(100) NOT NULL,
+      symptom VARCHAR(255) NOT NULL,
+      symptom_ml VARCHAR(255) NOT NULL,
+      severity VARCHAR(20) NOT NULL,
+      action_card TEXT NOT NULL,
+      action_card_ml TEXT NOT NULL,
+      active BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     );
+
+
 
     CREATE TABLE alerts (
       id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -297,6 +326,95 @@ const caregivers = {
       adherence_pct INT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+
+      CREATE TABLE sleep_logs (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        hospital_id BIGINT NOT NULL,
+        user_id BIGINT NOT NULL,
+        log_date DATE NOT NULL,
+
+        /* =========================
+          SUBJECTIVE RATING (1–5)
+        ========================= */
+        sleep_quality_rating TINYINT NOT NULL COMMENT '1=Very poor ... 5=Very good',
+
+        /* =========================
+          QUESTIONNAIRE SCORES (1–4 each)
+        ========================= */
+        q1_sleep_onset TINYINT NOT NULL,
+        q2_maintenance TINYINT NOT NULL,
+        q3_duration TINYINT NOT NULL,
+        q4_restfulness TINYINT NOT NULL,
+        q5_daytime_impact TINYINT NOT NULL,
+
+        total_score TINYINT NOT NULL COMMENT '5–20',
+        interpretation VARCHAR(30) NOT NULL COMMENT 'excellent | good | poor | very_poor',
+        notes TEXT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_sleep_user_date (user_id, log_date),
+        INDEX idx_sleep_user (user_id),
+        INDEX idx_sleep_date (log_date)
+    );
+
+    CREATE TABLE mood_logs (
+      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+      hospital_id BIGINT NOT NULL,
+      user_id BIGINT NOT NULL,
+      log_date DATE NOT NULL,
+
+      /* =========================
+        CORE QUESTIONS (1–5)
+      ========================= */
+      mood_level TINYINT NOT NULL COMMENT '1=Very low ... 5=Very high',
+      energy_level TINYINT NOT NULL COMMENT '1=Very low ... 5=Very high',
+      sleep_change TINYINT NOT NULL COMMENT '1=More than usual ... 4=Much less',
+      thought_speed TINYINT NOT NULL COMMENT '1=Slow ... 4=Racing',
+      impulsivity TINYINT NOT NULL COMMENT '1=None ... 4=A lot',
+      daily_functioning TINYINT NOT NULL COMMENT '1=Very poor ... 5=Very well',
+
+      /* =========================
+        AUTO ADD-ONS (nullable)
+      ========================= */
+      hopelessness TINYINT NULL COMMENT '0–3',
+      slowed_down TINYINT NULL COMMENT '0–3',
+      overconfidence TINYINT NULL COMMENT '0–3',
+      risk_taking TINYINT NULL COMMENT '0–3',
+
+      /* =========================
+        SAFETY
+      ========================= */
+      self_harm_ideation TINYINT NULL COMMENT '0=None,1=Brief,2=Strong,3=Declined',
+
+      /* =========================
+        DERIVED STATE (ENGINE)
+      ========================= */
+      trend_state ENUM(
+        'stable',
+        'depressive_trend',
+        'manic_trend',
+        'mixed',
+        'unknown'
+      ) DEFAULT 'unknown',
+
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+      UNIQUE KEY uq_mood_user_date (user_id, log_date),
+      INDEX idx_mood_user (user_id),
+      INDEX idx_mood_date (log_date),
+      INDEX idx_mood_trend (trend_state)
+    );
+
+    ALTER TABLE adr_chatbot.mood_logs
+    MODIFY impulsivity INT NULL DEFAULT NULL,
+    MODIFY overconfidence INT NULL DEFAULT NULL,
+    MODIFY risk_taking INT NULL DEFAULT NULL,
+    MODIFY hopelessness INT NULL DEFAULT NULL,
+    MODIFY slowed_down INT NULL DEFAULT NULL;
+
+    ALTER TABLE alerts
+    MODIFY alert_type VARCHAR(50) NOT NULL;
+
+
   `);
   console.log("✅ Tables created");
 
@@ -349,10 +467,30 @@ const caregivers = {
       const username = `${first.toLowerCase()}.${last.toLowerCase()}`;
       const phone = `9447${String(hospitalId).padStart(2,'0')}${String(i + 1).padStart(4,'0')}`;
 
+      const dob = randomDateOfBirth(18, 75);
+      const weightKg = randomWeightKg(45, 95);
+
       const [res] = await conn.query(
-        `INSERT INTO users (hospital_id, phone, full_name, locale, emergency_contact) VALUES (?, ?, ?, 'en', ?)`,
-        [hospitalId, phone, name, `9999${String(hospitalId * 100 + i + 1).padStart(5,'0')}`]
+        `INSERT INTO users (
+          hospital_id,
+          phone,
+          full_name,
+          locale,
+          emergency_contact,
+          date_of_birth,
+          weight_kg
+        )
+        VALUES (?, ?, ?, 'en', ?, ?, ?)`,
+        [
+          hospitalId,
+          phone,
+          name,
+          `9999${String(hospitalId * 100 + i + 1).padStart(5,'0')}`,
+          dob,
+          weightKg
+        ]
       );
+
       const userId = res.insertId;
       patientUserIds.push(userId);
 

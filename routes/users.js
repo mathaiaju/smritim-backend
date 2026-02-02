@@ -7,11 +7,30 @@ const bcrypt = require("bcryptjs");
 /* =====================================================
    HELPERS
 ===================================================== */
+
 function cleanUser(user) {
   const u = user.toJSON();
-  //delete u.is_active;
+
+  // Age
+  if (u.date_of_birth) {
+    const dob = new Date(u.date_of_birth);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    u.age = age;
+  } else {
+    u.age = null;
+  }
+
+  // Weight
+  u.weight_kg = u.weight_kg ?? null;
+
   return u;
 }
+
 
 /* =====================================================
    GET /api/users
@@ -93,7 +112,15 @@ router.put(
   async (req, res) => {
     try {
       const { hospital_id } = req.user;
-      const { full_name, phone, locale, emergency_contact } = req.body;
+     const {
+        full_name,
+        phone,
+        locale,
+        emergency_contact,
+        date_of_birth,
+        weight_kg
+      } = req.body;
+
 
       const user = await db.User.findOne({
         where: {
@@ -107,12 +134,15 @@ router.put(
         return res.status(404).json({ error: "Patient not found" });
       }
 
-      await user.update({
+    await user.update({
         full_name,
         phone,
         locale,
-        emergency_contact
+        emergency_contact,
+        date_of_birth,
+        weight_kg
       });
+
 
       res.json({
         message: "Patient updated successfully",
@@ -186,26 +216,31 @@ router.post(
   async (req, res) => {
     const t = await db.sequelize.transaction();
     try {
-      const {
+    const {
         full_name,
         phone,
         locale,
         emergency_contact,
+        date_of_birth,
+        weight_kg,
         username,
         password
       } = req.body;
 
-      const user = await db.User.create(
+
+     const user = await db.User.create(
         {
           hospital_id: req.user.hospital_id,
           full_name,
           phone,
           locale,
-          emergency_contact
-          //is_active: true
+          emergency_contact,
+          date_of_birth,
+          weight_kg
         },
         { transaction: t }
       );
+
 
       const hash = await bcrypt.hash(password, 10);
 
@@ -296,6 +331,51 @@ router.post(
     }
   }
 );
+/* =====================================================
+   GET /api/users/:id/clinicians
+   Get clinicians linked to a patient (ADMIN)
+===================================================== */
+router.get(
+  "/:id/clinicians",
+  auth(["hospital_admin"]),
+  async (req, res) => {
+    try {
+      const { hospital_id } = req.user;
+      const user_id = req.params.id;
+
+      // ensure patient exists in hospital
+      const patient = await db.User.findOne({
+        where: { id: user_id, hospital_id }
+      });
+
+      if (!patient) {
+        return res.status(404).json({ error: "Patient not found" });
+      }
+
+      const links = await db.PatientClinicianLink.findAll({
+        where: { user_id },
+        include: [
+          {
+            model: db.ClinicianUser,
+            attributes: ["id", "full_name", "phone", "role"]
+          }
+        ]
+      });
+
+      res.json(
+        links.map(l => ({
+          clinician_id: l.clinician_id,
+          relationship: l.relationship,
+          clinician: l.ClinicianUser
+        }))
+      );
+    } catch (err) {
+      console.error("Get patient clinicians error:", err);
+      res.status(500).json({ error: "Failed to fetch clinicians" });
+    }
+  }
+);
+
 /* =====================================================
    ONBOARD CAREGIVER
 ===================================================== */
@@ -510,5 +590,8 @@ router.post(
     }
   }
 );
+
+
+
 
 module.exports = router;

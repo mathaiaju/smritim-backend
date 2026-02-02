@@ -52,6 +52,16 @@ module.exports = (sequelize) =>
         defaultValue: DataTypes.NOW
       },
 
+      date_of_birth: {
+        type: DataTypes.DATEONLY,
+        allowNull: true
+      },
+
+      weight_kg: {
+        type: DataTypes.DECIMAL(5,2),
+        allowNull: true
+      },
+
       updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

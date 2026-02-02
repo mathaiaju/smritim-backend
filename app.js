@@ -86,6 +86,10 @@ app.use('/api/drugs', require('./routes/drugs'));
 
 app.use("/api/patient/chatbot", require("./routes/patient_chatbot_llm"));
 
+app.use("/api/sleep-logs", require("./routes/sleep-logs"));
+app.use("/api/mood-logs", require("./routes/mood-logs"));
+
+
 
 
 app.get('/', (req,res)=> res.json({ok:true, msg:'MediRaksha backend'}));

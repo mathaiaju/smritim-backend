@@ -29,6 +29,7 @@ db.DailyLog = require("./daily_log")(sequelize);
 db.Alert = require("./alert")(sequelize);
 db.Rule = require("./rule")(sequelize);
 
+
 db.PatientClinicianLink = require("./patient_clinician_link")(sequelize);
 
 db.PatientCaregiverLink = require("./user_caregiver_link")(
@@ -45,6 +46,10 @@ db.PvpiReviewLog = require("./pvpi_review_log")(sequelize);
 db.MeddraTerm = require("./meddra_term")(sequelize);
 
 db.AuditLog = require('./AuditLog')(sequelize, Sequelize);
+
+db.SleepLog = require("./sleepLog")(sequelize, Sequelize);
+db.MoodLog  = require("./moodLog")(sequelize, Sequelize);
+
 
 
 /* =========================
