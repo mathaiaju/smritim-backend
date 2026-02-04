@@ -15,7 +15,7 @@ CREATE USER 'aju'@'%' IDENTIFIED BY 'admin123';
 
 GRANT ALL PRIVILEGES ON adr_chatbot.* TO 'aju'@'%';
 
-FLUSH PRIVILEGES;
+  FLUSH PRIVILEGES;
 
 docker network create smritim-net
 
@@ -24,7 +24,6 @@ docker network connect smritim-net smritim-mysql
 
 # Start SMRITI-M Backend
 
-node seed/finalseedTestData.js
 
 docker build -t smritim-backend .
 
@@ -32,5 +31,8 @@ docker run --name smritim-backend \
   --network smritim-net \
   -p 3000:3000 \
   smritim-backend
+
+docker exec -it smritim-backend node seed/finalseedTestData.js
+
 
 
