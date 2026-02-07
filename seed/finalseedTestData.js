@@ -24,7 +24,7 @@ const path = require("path");
 const bcrypt = require("bcryptjs"); // npm install bcryptjs
 
 const dbConfig = {
-  host: "localhost",
+  host: "smritm-mysql",
   user: "aju",
   password: "admin123",
   database: "adr_chatbot",
