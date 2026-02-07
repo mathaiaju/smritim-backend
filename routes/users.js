@@ -445,7 +445,7 @@ router.post(
   auth(["hospital_admin"]),
   async (req, res) => {
     try {
-      const { user_id, clinician_id } = req.body;
+      const { user_id, clinician_id, relationship = "primary" } = req.body;
       const { hospital_id } = req.user;
 
       if (!user_id || !clinician_id) {
@@ -455,9 +455,8 @@ router.post(
       }
 
       const patient = await db.User.findOne({
-        where: { id: user_id, hospital_id}
+        where: { id: user_id, hospital_id }
       });
-
       if (!patient) {
         return res.status(404).json({ error: "Patient not found" });
       }
@@ -465,7 +464,6 @@ router.post(
       const clinician = await db.ClinicianUser.findOne({
         where: { id: clinician_id, hospital_id }
       });
-
       if (!clinician) {
         return res.status(404).json({ error: "Clinician not found" });
       }
@@ -473,7 +471,6 @@ router.post(
       const existing = await db.PatientClinicianLink.findOne({
         where: { user_id, clinician_id }
       });
-
       if (existing) {
         return res.status(409).json({
           error: "Patient already linked to this clinician"
@@ -483,12 +480,23 @@ router.post(
       const link = await db.PatientClinicianLink.create({
         user_id,
         clinician_id,
-        relationship: "primary"
+        relationship
       });
 
       res.status(201).json({
         message: "Patient successfully linked to clinician",
-        link
+        link: {
+          id: link.id,
+          user_id,
+          clinician_id,
+          relationship,
+          clinician: {
+            id: clinician.id,
+            full_name: clinician.full_name,
+            phone: clinician.phone,
+            role: clinician.role
+          }
+        }
       });
     } catch (err) {
       console.error("Patient–Clinician link error:", err);
@@ -535,9 +543,9 @@ router.post(
         user_id,
         caregiver_id,
         notify_missed = true,
-        notify_redflag = true
+        notify_redflag = true,
+        relationship = "primary"
       } = req.body;
-
       const { hospital_id } = req.user;
 
       if (!user_id || !caregiver_id) {
@@ -547,9 +555,8 @@ router.post(
       }
 
       const patient = await db.User.findOne({
-        where: { id: user_id, hospital_id}
+        where: { id: user_id, hospital_id }
       });
-
       if (!patient) {
         return res.status(404).json({ error: "Patient not found" });
       }
@@ -557,7 +564,6 @@ router.post(
       const caregiver = await db.Caregiver.findOne({
         where: { id: caregiver_id, hospital_id }
       });
-
       if (!caregiver) {
         return res.status(404).json({ error: "Caregiver not found" });
       }
@@ -565,7 +571,6 @@ router.post(
       const existing = await db.PatientCaregiverLink.findOne({
         where: { user_id, caregiver_id }
       });
-
       if (existing) {
         return res.status(409).json({
           error: "Caregiver already linked to this patient"
@@ -577,12 +582,26 @@ router.post(
         user_id,
         caregiver_id,
         notify_missed,
-        notify_redflag
+        notify_redflag,
+        relationship
       });
 
       res.status(201).json({
         message: "Caregiver successfully linked to patient",
-        link
+        link: {
+          id: link.id,
+          user_id,
+          caregiver_id,
+          relationship,
+          notify_missed,
+          notify_redflag,
+          caregiver: {
+            id: caregiver.id,
+            full_name: caregiver.full_name,
+            phone: caregiver.phone,
+            relation: caregiver.relation
+          }
+        }
       });
     } catch (err) {
       console.error("Patient–Caregiver link error:", err);
@@ -590,7 +609,6 @@ router.post(
     }
   }
 );
-
 
 
 

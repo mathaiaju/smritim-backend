@@ -52,7 +52,7 @@ router.post(
 ===================================================== */
 router.get(
   "/",
-  auth(["hospital_admin", "hospital_admin"]),
+  auth(["hospital_admin", "clinician"]), // 🔐 IMPORTANT
   async (req, res) => {
     try {
       // Hospital admin → only own hospital

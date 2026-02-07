@@ -443,7 +443,22 @@ router.get(
   }
 );
 
-
+// GET /api/clinicians/:id - allow hospital_admin and clinician to fetch a clinician by id
+router.get("/:id", auth(["hospital_admin", "clinician"]), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const clinician = await db.ClinicianUser.findByPk(id, {
+      attributes: ["id", "hospital_id", "full_name", "email", "phone", "role"]
+    });
+    if (!clinician) {
+      return res.status(404).json({ error: "Clinician not found" });
+    }
+    res.json(clinician);
+  } catch (err) {
+    console.error("Fetch clinician by id error:", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
 
 
 module.exports = router;

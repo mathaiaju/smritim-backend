@@ -1,4 +1,4 @@
- CREATE TABLE hospitals (
+CREATE TABLE hospitals (
       id BIGINT PRIMARY KEY AUTO_INCREMENT,
       name VARCHAR(150) NOT NULL,
       code VARCHAR(50) UNIQUE NOT NULL,
@@ -179,6 +179,13 @@
     submitted_to_pvpi BOOLEAN DEFAULT FALSE,
     submitted_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    adr_description TEXT,
+    suspected_drug VARCHAR(255),
+    reaction_outcome VARCHAR(255),
+    reporter_name VARCHAR(100),
+    reporter_contact VARCHAR(50),
+    hospital_name VARCHAR(150),
+    action_taken TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (medication_id) REFERENCES medications(id),
     FOREIGN KEY (medication_schedule_id) REFERENCES medication_schedules(id)

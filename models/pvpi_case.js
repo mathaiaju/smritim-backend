@@ -65,6 +65,35 @@ module.exports = (sequelize) =>
         defaultValue: "unknown"
       },
 
+      adr_description: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      suspected_drug: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      reaction_outcome: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      reporter_name: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+      },
+      reporter_contact: {
+        type: DataTypes.STRING(50),
+        allowNull: true
+      },
+      hospital_name: {
+        type: DataTypes.STRING(150),
+        allowNull: true
+      },
+      action_taken: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+
       /* =========================
          PvPI / AMC WORKFLOW
       ========================= */

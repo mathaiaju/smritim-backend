@@ -172,7 +172,9 @@ router.post(
   auth(["clinician"]),
   async (req, res) => {
     try {
-      const { alert_id, seriousness = "serious" } = req.body;
+      // Map 'critical' to 'serious' for seriousness
+      let { alert_id, seriousness = "serious" } = req.body;
+      if (seriousness === 'critical') seriousness = 'serious';
       const { linked_id: clinician_id, hospital_id } = req.user;
 
       if (!alert_id) {
@@ -235,7 +237,14 @@ router.post(
         original_term: alert.description,
         seriousness,
         outcome: "ongoing",
-        submitted_to_pvpi: false
+        submitted_to_pvpi: false,
+        adr_description: req.body.adr_description,
+        suspected_drug: req.body.suspected_drug,
+        reaction_outcome: req.body.reaction_outcome,
+        reporter_name: req.body.reporter_name,
+        reporter_contact: req.body.reporter_contact,
+        hospital_name: req.body.hospital_name,
+        action_taken: req.body.action_taken
       });
 
       /* =========================
